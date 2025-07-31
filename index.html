@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Custom Printing Calculators</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      max-width: 1000px;
+      margin: auto;
+      font-size: 16px;
+    }
+
+    .calculator {
+      display: none;
+      padding: 8px;
+      margin: 20px auto 0 auto;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 700px;
+      box-sizing: border-box;
+    }
+    @media (max-width: 768px) {
+      .calculator {
+        width: 100%;
+        max-width: 100%;
+        padding: 5px;
+      }
+    }
+
+    .location-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-bottom: 0.5rem;
+      align-items: flex-start;
+    }
+
+    .location-group {
+      flex: 0 0 auto;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .location-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .location-group select,
+    .location-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .button-group button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      min-width: 80px;
+    }
+
+    .button-group button:hover {
+      background-color: #0056b3;
+    }
+
+    .calculator-output {
+      margin-top: 1rem;
+      white-space: pre-wrap;
+      background-color: white;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .visible {
+      display: block;
+    }
+
+    /* Mobile Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        padding: 5px;
+        font-size: 14px;
+      }
+
+      .calculator {
+        padding: 10px;
+        margin-top: 10px;
+      }
+
+      .location-group {
+        flex: 1 1 100%;
+        min-width: auto;
+        margin-bottom: 10px;
+      }
+
+      .location-row {
+        gap: 0;
+      }
+
+      .button-group {
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .button-group button {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+      }
+
+      .calculator-selector select {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      .calculator-selector label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      h2, h3 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+      }
+
+      .logo h1 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+      }
+    }
+
+    /* Touch-friendly improvements */
+    @media (max-width: 480px) {
+      .location-group select,
+      .location-group input {
+        padding: 12px;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+
+      .button-group button {
+        padding: 15px;
+        font-size: 16px;
+      }
+    }
+
+    /* Make fulfillment dropdowns more narrow */
+    #fulfillNames, #fulfillNumbers, #fulfillLaser, #fulfillInsideTag {
+      max-width: 180px;
+    }
+
+    /* Make Fulfillment Calculator more narrow and centered */
+    #fulfillmentCalculator {
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Fix alignment issues in Fulfillment Calculator */
+    #fulfillmentCalculator .location-row {
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    #fulfillmentCalculator .location-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    #fulfillmentCalculator .location-group label {
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    #fulfillmentCalculator .fulfill-checkbox-label {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      font-weight: normal;
+      gap: 5px;
+    }
+
+    #fulfillmentCalculator .fulfill-checkbox-label input[type="checkbox"] {
+      margin: 0;
+    }
+    .main-flex-align {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    .calculator-selector {
+      width: 480px;
+      margin: 0 auto 10px auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: flex-start;
+    }
+    .calculator-selector label {
+      margin-bottom: 0;
+      font-weight: bold;
+      min-width: 160px;
+    }
+    .fulfill-checkbox-label {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      font-weight: normal;
+    }
+    #calculatorSelect {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      max-width: 180px;
+    }
+    /* Make all calculator dropdowns more narrow */
+    #screenLoc1, #screenLoc2, #screenLoc3, #screenLoc4, #screenLoc5, #screenLoc6,
+    #embLoc1, #embLoc2, #embLoc3, #embLoc4, #embLoc5, #embLoc6,
+    #dtfLoc1, #dtfLoc2, #dtfLoc3, #dtfLoc4, #dtfLoc5, #dtfLoc6,
+    #dtgLoc1, #dtgLoc2, #dtgLoc3, #dtgLoc4, #dtgLoc5, #dtgLoc6 {
+      max-width: 120px;
+    }
+    
+    /* Style for selected location dropdowns */
+    .location-selected {
+      background-color: #000080 !important;
+      color: #ffffff !important;
+    }
+    
+    /* Style for selected location labels */
+    .location-label-selected {
+      color: #000080 !important;
+      font-weight: bold !important;
+    }
+    
+    #screenQuantity, #embQuantity, #dtfQuantity, #dtgQuantity, #fulfillQuantity,
+    #screenApparelCost, #embApparelCost, #dtfApparelCost, #dtgApparelCost {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      max-width: 180px;
+    }
+    .fulfillment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    /* DTF Calculator specific spacing */
+    #dtfCalculator .location-row {
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+    
+    #dtfCalculator .location-group {
+      margin-right: 15px;
+    }
+    
+    #dtfCalculator .location-group:last-child {
+      margin-right: 0;
+    }
+    
+    /* Embroidery and DTG Calculator spacing for Quantity and Apparel Cost */
+    #embroideryCalculator .location-row:first-child,
+    #dtgCalculator .location-row:first-child {
+      gap: 80px !important;
+      justify-content: space-between !important;
+    }
+    
+    #embroideryCalculator .location-row:first-child .location-group,
+    #dtgCalculator .location-row:first-child .location-group {
+      margin-right: 50px !important;
+      min-width: 200px !important;
+    }
+    
+    #embroideryCalculator .location-row:first-child .location-group:last-child,
+    #dtgCalculator .location-row:first-child .location-group:last-child {
+      margin-right: 0 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo (Optional) -->
+  <div class="logo">
+    <img src="Affordable Printing - Horizontal 2 wide.jpg" alt="Affordable Printing Logo" style="max-width: 300px; height: auto; display: block; margin: 0 auto 20px auto;" />
+  </div>
+
+  <!-- Remove Select a Calculator heading and label -->
+  <!-- <h2>Select a Calculator</h2> -->
+  <div class="main-flex-align">
+    <div class="calculator-selector">
+      <label for="calculatorSelect">Select a Calculator:</label>
+      <select id="calculatorSelect" onchange="switchCalculator(this.value)">
+        <option value="">-- Select --</option>
+        <option value="screen">Screen Printing</option>
+        <option value="embroidery">Embroidery</option>
+        <option value="dtf">DTF Printing</option>
+        <option value="dtg">DTG Printing</option>
+        <option value="fulfillment">Fulfillment</option>
+      </select>
+    </div>
+    <!-- Calculators go here -->
+  </div>
+
+  <!-- 🖨️ Screen Printing Calculator -->
+  <div id="screenCalculator" class="calculator">
+    <div style="display: flex; align-items: flex-end; gap: 16px;">
+      <h3 style="margin-bottom: 0;">Screen Printing Calculator</h3>
+    </div>
+    <div style="margin-bottom: 8px;">
+      <span style="font-size: 0.8em; color: #555;">Maximum Print Area 14"Wide X 15.5" Tall, Maximum Sleeve Print 3.5"Wide X 15.5" Tall</span>
+    </div>
+    <div style="display: flex; align-items: flex-end; gap: 16px; margin-bottom: 8px;">
+      <div style="flex: 0 0 auto;">
+        <label for="screenQuantity">Quantity:</label>
+        <input type="number" id="screenQuantity" min="6" placeholder="Enter quantity (min 6)" />
+      </div>
+      <div style="flex: 0 0 auto;">
+        <label for="screenApparelCost">Apparel Cost (optional):</label>
+        <input type="number" id="screenApparelCost" min="0" step="0.01" placeholder="Enter apparel cost per item" />
+      </div>
+    </div>
+    <div style="display: flex; align-items: flex-end; gap: 16px; margin-bottom: 8px;">
+      <div style="flex: 0 0 auto; margin-bottom: 2px;">
+        <label for="fleeceCheckbox" style="display: block;">Is this a fleece print?</label>
+        <input type="checkbox" id="fleeceCheckbox" /> <span for="fleeceCheckbox">Yes</span>
+      </div>
+      <div style="flex: 0 0 auto; margin-bottom: 2px;">
+        <label for="nonStandardCheckbox" style="display: block;">Non Standard Location</label>
+        <input type="checkbox" id="nonStandardCheckbox" /> <span for="nonStandardCheckbox">Yes</span>
+      </div>
+    </div>
+
+    <!-- Row 1 -->
+    <div class="location-row">
+      <div class="location-group" id="screenGroup1">
+        <label for="screenLoc1">Left Chest:</label>
+        <select id="screenLoc1"></select>
+      </div>
+      <div class="location-group" id="screenGroup2">
+        <label for="screenLoc2">Center Chest:</label>
+        <select id="screenLoc2"></select>
+      </div>
+      <div class="location-group" id="screenGroup3">
+        <label for="screenLoc3">Back:</label>
+        <select id="screenLoc3"></select>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="location-row">
+      <div class="location-group" id="screenGroup4">
+        <label for="screenLoc4">Left Shoulder:</label>
+        <select id="screenLoc4"></select>
+      </div>
+      <div class="location-group" id="screenGroup5">
+        <label for="screenLoc5">Right Shoulder:</label>
+        <select id="screenLoc5"></select>
+      </div>
+      <div class="location-group" id="screenGroup6">
+        <label for="screenLoc6">Right Chest:</label>
+        <select id="screenLoc6"></select>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-group">
+      <button onclick="calculateScreen()">Calculate</button>
+      <button onclick="resetScreen()">Reset</button>
+      <button onclick="copyScreen()">Copy to Clipboard</button>
+    </div>
+
+    <div id="screenOutput" class="calculator-output hidden"></div>
+  </div>
+
+  <!-- 🧵 Embroidery Calculator -->
+  <div id="embroideryCalculator" class="calculator">
+    <h3>Embroidery Calculator</h3>
+    <div style="display: flex; align-items: flex-end; gap: 16px; margin-bottom: 8px;">
+      <div style="flex: 0 0 auto;">
+        <label for="embQuantity">Quantity:</label>
+        <input type="number" id="embQuantity" min="1" placeholder="Enter quantity" />
+      </div>
+      <div style="flex: 0 0 auto;">
+        <label for="embApparelCost">Apparel Cost (optional):</label>
+        <input type="number" id="embApparelCost" min="0" step="0.01" placeholder="Enter apparel cost per item" />
+      </div>
+    </div>
+
+    <!-- Row 1 -->
+    <div class="location-row">
+      <div class="location-group" id="embGroup1">
+        <label for="embLoc1">Left Chest:</label>
+        <select id="embLoc1"></select>
+      </div>
+      <div class="location-group" id="embGroup2">
+        <label for="embLoc2">Center Chest:</label>
+        <select id="embLoc2"></select>
+      </div>
+      <div class="location-group" id="embGroup3">
+        <label for="embLoc3">Right Chest:</label>
+        <select id="embLoc3"></select>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="location-row">
+      <div class="location-group" id="embGroup4">
+        <label for="embLoc4">Left Shoulder:</label>
+        <select id="embLoc4"></select>
+      </div>
+      <div class="location-group" id="embGroup5">
+        <label for="embLoc5">Right Shoulder:</label>
+        <select id="embLoc5"></select>
+      </div>
+      <div class="location-group" id="embGroup6">
+        <label for="embLoc6">Back:</label>
+        <select id="embLoc6"></select>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-group">
+      <button onclick="calculateEmbroidery()">Calculate</button>
+      <button onclick="resetEmbroidery()">Reset</button>
+      <button onclick="copyEmbroidery()">Copy to Clipboard</button>
+    </div>
+
+    <div id="embroideryOutput" class="calculator-output hidden"></div>
+  </div>
+
+  <!-- 🎯 DTF Calculator -->
+  <div id="dtfCalculator" class="calculator">
+    <h3>DTF Printing Calculator</h3>
+    <div style="display: flex; align-items: flex-end; gap: 16px; margin-bottom: 8px;">
+      <div style="flex: 0 0 auto;">
+        <label for="dtfQuantity">Quantity:</label>
+        <input type="number" id="dtfQuantity" min="1" placeholder="Enter quantity" />
+      </div>
+      <div style="flex: 0 0 auto;">
+        <label for="dtfApparelCost">Apparel Cost (optional):</label>
+        <input type="number" id="dtfApparelCost" min="0" step="0.01" placeholder="Enter apparel cost per item" />
+      </div>
+    </div>
+
+    <!-- Row 1 -->
+    <div class="location-row">
+      <div class="location-group" id="dtfGroup1">
+        <label for="dtfLoc1">Left Chest:</label>
+        <select id="dtfLoc1"></select>
+      </div>
+      <div class="location-group" id="dtfGroup2">
+        <label for="dtfLoc2">Center Chest:</label>
+        <select id="dtfLoc2"></select>
+      </div>
+      <div class="location-group" id="dtfGroup3">
+        <label for="dtfLoc3">Right Chest:</label>
+        <select id="dtfLoc3"></select>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="location-row">
+      <div class="location-group" id="dtfGroup4">
+        <label for="dtfLoc4">Left Shoulder:</label>
+        <select id="dtfLoc4"></select>
+      </div>
+      <div class="location-group" id="dtfGroup5">
+        <label for="dtfLoc5">Right Shoulder:</label>
+        <select id="dtfLoc5"></select>
+      </div>
+      <div class="location-group" id="dtfGroup6">
+        <label for="dtfLoc6">Back:</label>
+        <select id="dtfLoc6"></select>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-group">
+      <button onclick="calculateDTF()">Calculate</button>
+      <button onclick="resetDTF()">Reset</button>
+      <button onclick="copyDTF()">Copy to Clipboard</button>
+    </div>
+
+    <div id="dtfOutput" class="calculator-output hidden"></div>
+  </div>
+
+  <!-- 🧼 DTG Calculator -->
+  <div id="dtgCalculator" class="calculator">
+    <h3>DTG Printing Calculator</h3>
+    <div style="display: flex; align-items: flex-end; gap: 16px; margin-bottom: 8px;">
+      <div style="flex: 0 0 auto;">
+        <label for="dtgQuantity">Quantity:</label>
+        <input type="number" id="dtgQuantity" min="1" placeholder="Enter quantity" />
+      </div>
+      <div style="flex: 0 0 auto;">
+        <label for="dtgApparelCost">Apparel Cost (optional):</label>
+        <input type="number" id="dtgApparelCost" min="0" step="0.01" placeholder="Enter apparel cost per item" />
+      </div>
+    </div>
+
+    <!-- Row 1 -->
+    <div class="location-row">
+      <div class="location-group" id="dtgGroup1">
+        <label for="dtgLoc1">Left Chest:</label>
+        <select id="dtgLoc1"></select>
+      </div>
+      <div class="location-group" id="dtgGroup2">
+        <label for="dtgLoc2">Center Chest:</label>
+        <select id="dtgLoc2"></select>
+      </div>
+      <div class="location-group" id="dtgGroup3">
+        <label for="dtgLoc3">Right Chest:</label>
+        <select id="dtgLoc3"></select>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="location-row">
+      <div class="location-group" id="dtgGroup4">
+        <label for="dtgLoc4">Left Shoulder:</label>
+        <select id="dtgLoc4"></select>
+      </div>
+      <div class="location-group" id="dtgGroup5">
+        <label for="dtgLoc5">Right Shoulder:</label>
+        <select id="dtgLoc5"></select>
+      </div>
+      <div class="location-group" id="dtgGroup6">
+        <label for="dtgLoc6">Back:</label>
+        <select id="dtgLoc6"></select>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-group">
+      <button onclick="calculateDTG()">Calculate</button>
+      <button onclick="resetDTG()">Reset</button>
+      <button onclick="copyDTG()">Copy to Clipboard</button>
+    </div>
+
+    <div id="dtgOutput" class="calculator-output hidden"></div>
+  </div>
+
+  <!-- 📦 Fulfillment Calculator -->
+  <div id="fulfillmentCalculator" class="calculator">
+    <h3>Fulfillment Calculator</h3>
+    <div class="location-row">
+      <div class="location-group">
+        <label for="fulfillQuantity">Quantity:</label>
+        <input type="number" id="fulfillQuantity" min="1" placeholder="Enter quantity" style="max-width: 120px;" />
+      </div>
+    </div>
+    <div class="location-row">
+      <div class="location-group">
+        <label class="fulfill-checkbox-label" for="fulfillFoldBag"><input type="checkbox" id="fulfillFoldBag" /> Fold and Bag ($0.50)</label>
+      </div>
+      <div class="location-group">
+        <label class="fulfill-checkbox-label" for="fulfillOversized"><input type="checkbox" id="fulfillOversized" disabled /> Oversized (Fleece) ($0.10)</label>
+      </div>
+      <div class="location-group">
+        <label class="fulfill-checkbox-label" for="fulfillCustomLabel"><input type="checkbox" id="fulfillCustomLabel" /> Custom Label ($0.25)</label>
+      </div>
+    </div>
+    <div class="location-row">
+      <div class="location-group">
+        <label for="fulfillNames">Names:</label>
+        <select id="fulfillNames">
+          <option value="">-- None --</option>
+          <option value="trsf1">(TRSF) Up to 1" tall ($4.00)</option>
+          <option value="trsf2">(TRSF) Above 1" tall ($5.00)</option>
+          <option value="emb1">(EMB) Up to 1" tall ($5.50)</option>
+          <option value="emb2">(EMB) Over 1" tall ($7.50)</option>
+        </select>
+      </div>
+      <div class="location-group">
+        <label for="fulfillNumbers">Numbers:</label>
+        <select id="fulfillNumbers">
+          <option value="">-- None --</option>
+          <option value="trsf3">(TRSF) 2" to 8" tall ($3.00)</option>
+          <option value="trsf4">(TRSF) 10" to 12" tall ($4.00)</option>
+          <option value="emb3">(EMB) Up to 1" tall ($5.50)</option>
+          <option value="emb4">(EMB) Over 1" tall ($7.50)</option>
+        </select>
+      </div>
+    </div>
+    <div class="location-row">
+      <div class="location-group" style="flex: 1 1 100%; max-width: 100%;">
+        <label for="fulfillLaser">Laser Engraving:</label>
+        <select id="fulfillLaser">
+          <option value="">-- None --</option>
+          <option value="4x4">4" x 4"</option>
+          <option value="8x8">8" x 8"</option>
+        </select>
+      </div>
+    </div>
+    <div class="location-row">
+      <div class="location-group">
+        <label class="fulfill-checkbox-label" for="fulfillHangTag"><input type="checkbox" id="fulfillHangTag" /> Hanging Tag + Application</label>
+      </div>
+      <div class="location-group">
+        <label class="fulfill-checkbox-label" for="fulfillClipTags"><input type="checkbox" id="fulfillClipTags" /> Clipping Tags ($0.05)</label>
+      </div>
+      <div class="location-group">
+        <label for="fulfillInsideTag">Inside Tag (SP) (DTF):</label>
+        <select id="fulfillInsideTag">
+          <option value="">-- Select --</option>
+          <option value="sp">Screen Printing (1 Color)</option>
+          <option value="dtf">DTF (Full Color)</option>
+        </select>
+      </div>
+    </div>
+    <div id="fulfillSizesGroup" class="location-row" style="display: none;">
+      <div class="location-group">
+        <label>Sizes (for Screen Printing):</label>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px;">
+          <label style="display: flex; align-items: center; gap: 5px; font-weight: normal;">
+            <input type="checkbox" class="fulfillSize" value="XS" /> XS
+          </label>
+          <label style="display: flex; align-items: center; gap: 5px; font-weight: normal;">
+            <input type="checkbox" class="fulfillSize" value="S" /> S
+          </label>
+          <label style="display: flex; align-items: center; gap: 5px; font-weight: normal;">
+            <input type="checkbox" class="fulfillSize" value="M" /> M
+          </label>
+          <label style="display: flex; align-items: center; gap: 5px; font-weight: normal;">
+            <input type="checkbox" class="fulfillSize" value="L" /> L
+          </label>
+          <label style="display: flex; align-items: center; gap: 5px; font-weight: normal;">
+            <input type="checkbox" class="fulfillSize" value="XL" /> XL
+          </label>
+          <label style="display: flex; align-items: center; gap: 5px; font-weight: normal;">
+            <input type="checkbox" class="fulfillSize" value="XXL" /> XXL
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="button-group">
+      <button onclick="calculateFulfillment()">Calculate</button>
+      <button onclick="resetFulfillment()">Reset</button>
+      <button onclick="copyFulfillment()">Copy to Clipboard</button>
+    </div>
+    <div id="fulfillmentOutput" class="calculator-output hidden"></div>
+  </div>
+
+<script>
+  function switchCalculator(type) {
+    document.querySelectorAll(".calculator").forEach(el => el.style.display = "none");
+    if (type === "screen") {
+      document.getElementById("screenCalculator").style.display = "block";
+    } else if (type === "embroidery") {
+      document.getElementById("embroideryCalculator").style.display = "block";
+    } else if (type === "dtf") {
+      document.getElementById("dtfCalculator").style.display = "block";
+    } else if (type === "dtg") {
+      document.getElementById("dtgCalculator").style.display = "block";
+    } else if (type === "fulfillment") {
+      document.getElementById("fulfillmentCalculator").style.display = "block";
+    }
+  }
+
+  const dtfSizes = [
+    { label: "None", value: "" },
+    { label: '4" x 4"', value: "4x4" },
+    { label: '8" x 8"', value: "8x8" },
+    { label: '10" x 10"', value: "10x10" },
+    { label: '11" x 14"', value: "11x14" }
+  ];
+
+  const dtfLocations = [
+    "Left Chest", "Center Chest", "Right Chest",
+    "Left Shoulder", "Right Shoulder", "Back"
+  ];
+
+  const dtfPricing = {
+    "4x4": [2.95, 2.61, 2.56, 2.25, 1.65, 1.45],
+    "8x8": [4.20, 3.70, 3.10, 2.75, 2.15, 1.95],
+    "10x10": [6.35, 5.75, 5.25, 4.95, 4.25, 3.95],
+    "11x14": [10.25, 8.55, 7.80, 7.25, 6.25, 5.85]
+  };
+
+  function getDTFTier(quantity) {
+    if (quantity >= 1000) return 6;
+    if (quantity >= 500) return 5;
+    if (quantity >= 250) return 4;
+    if (quantity >= 100) return 3;
+    if (quantity >= 50) return 2;
+    if (quantity >= 25) return 1;
+    return 0;
+  }
+
+  function calculateDTF() {
+    const quantity = parseInt(document.getElementById("dtfQuantity").value);
+    const output = document.getElementById("dtfOutput");
+    if (!quantity || quantity <= 0) {
+      alert("Please enter a valid quantity.");
+      return;
+    }
+
+    const tier = getDTFTier(quantity);
+    let totalCost = 0;
+    let breakdown = `--- DTF Printing Quote ---\nQuantity: ${quantity}\n\n`;
+
+    for (let i = 1; i <= 6; i++) {
+      const select = document.getElementById(`dtfLoc${i}`);
+      const size = select.value;
+      
+      if (!size) continue;
+
+      const unitPrice = dtfPricing[size][tier];
+      const locCost = unitPrice * quantity;
+      totalCost += locCost;
+
+      const label = dtfSizes.find(p => p.value === size)?.label || size;
+      breakdown += `${dtfLocations[i - 1]} (${label})\n`;
+      breakdown += `  Unit Price: $${unitPrice.toFixed(2)}\n`;
+      breakdown += `  Cost: $${locCost.toFixed(2)}\n\n`;
+    }
+
+    if (totalCost === 0) {
+      alert("Please select at least one print location.");
+      return;
+    }
+
+    const originalTotal = totalCost;
+    let totalWithApparel = totalCost;
+
+    // Apparel cost calculation
+    const apparelCost = parseFloat(document.getElementById("dtfApparelCost").value) || 0;
+    let apparelSection = "";
+    
+    if (apparelCost > 0) {
+      const apparelTotal = apparelCost * quantity;
+      totalWithApparel += apparelTotal;
+      apparelSection = `Apparel Cost:\n  ${quantity} x $${apparelCost.toFixed(2)} = $${apparelTotal.toFixed(2)}\n\n`;
+    }
+
+    // Mark-up calculation
+    let markupSection = "";
+    if (apparelCost > 0) {
+      let markupPerItem = 0;
+      
+      // If total mark-up would be less than $225.00, use $225.00 divided by quantity
+      if (apparelCost * quantity < 225.00) {
+        markupPerItem = 225.00 / quantity;
+      } else {
+        // If total would be over $225.00, mark-up is same as item cost
+        markupPerItem = apparelCost;
+      }
+      
+      // Minimum $3.50 per item
+      if (markupPerItem < 3.50) {
+        markupPerItem = 3.50;
+      }
+      
+      const finalMarkupTotal = markupPerItem * quantity;
+      
+      markupSection = `Mark-up:\n  ${quantity} x $${markupPerItem.toFixed(2)} = $${finalMarkupTotal.toFixed(2)}\n\n`;
+    }
+
+    if (originalTotal < 20) {
+      breakdown += `Subtotal: $${originalTotal.toFixed(2)}\n`;
+      breakdown += `Minimum Order Applied: $20.00 Minimum\n`;
+      totalCost = 20.00;
+      totalWithApparel = totalCost + (apparelCost * quantity);
+    }
+
+    // Calculate final totals for display
+    const decorationCostPerItem = totalCost / quantity;
+    const apparelCostPerItem = apparelCost;
+    
+    // Calculate mark-up per item using the same logic as above
+    let markupPerItem = 0;
+    if (apparelCost > 0) {
+      if (apparelCost * quantity < 225.00) {
+        markupPerItem = 225.00 / quantity;
+      } else {
+        markupPerItem = apparelCost;
+      }
+      if (markupPerItem < 3.50) {
+        markupPerItem = 3.50;
+      }
+    }
+    
+    const totalCostPerItem = decorationCostPerItem + apparelCostPerItem + markupPerItem;
+    
+    breakdown += `<strong style="color: red;">Decoration Cost Total: $${totalCost.toFixed(2)} ($${decorationCostPerItem.toFixed(2)} per item)</strong><br>`;
+    if (apparelCost > 0) {
+      breakdown += `<strong style="color: #00ff00;">Apparel Cost Total: $${(apparelCost * quantity).toFixed(2)} ($${apparelCostPerItem.toFixed(2)} per item)</strong><br>`;
+      breakdown += `<strong style="color: blue;">Mark-up Total: $${(markupPerItem * quantity).toFixed(2)} ($${markupPerItem.toFixed(2)} per item)</strong><br>`;
+      breakdown += `<strong>Total Cost: $${(totalCostPerItem * quantity).toFixed(2)} ($${totalCostPerItem.toFixed(2)} per item)</strong>`;
+    } else {
+      breakdown += `<strong>Total Cost: $${totalCost.toFixed(2)} ($${decorationCostPerItem.toFixed(2)} per item)</strong>`;
+    }
+    output.innerHTML = breakdown;
+    output.classList.remove("hidden");
+    output.classList.add("visible");
+  }
+
+  function resetDTF() {
+    document.getElementById("dtfQuantity").value = "";
+    document.getElementById("dtfApparelCost").value = "";
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById(`dtfLoc${i}`).selectedIndex = 0;
+      document.getElementById(`dtfLoc${i}`).classList.remove('location-selected');
+      // Remove class from the corresponding label
+      const label = document.getElementById(`dtfLoc${i}`).previousElementSibling;
+      if (label && label.tagName === 'LABEL') {
+        label.classList.remove('location-label-selected');
+      }
+    }
+    const output = document.getElementById("dtfOutput");
+    output.textContent = "";
+    output.classList.add("hidden");
+  }
+
+  function copyDTF() {
+    const output = document.getElementById("dtfOutput");
+    const text = output.innerText.trim();
+    if (!text) {
+      alert("Nothing to copy yet!");
+      return;
+    }
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard!"))
+      .catch(() => alert("Failed to copy. Try manually."));
+  }
+
+  // Screen Printing Calculator
+  const screenSizes = [
+    { label: "None", value: "" },
+    { label: "1 Color", value: "1color" },
+    { label: "2 Colors", value: "2color" },
+    { label: "3 Colors", value: "3color" },
+    { label: "4 Colors", value: "4color" },
+    { label: "5 Colors", value: "5color" },
+    { label: "6 Colors", value: "6color" },
+    { label: "7 Colors", value: "7color" },
+    { label: "8 Colors", value: "8color" },
+    { label: "9 Colors", value: "9color" },
+    { label: "10 Colors", value: "10color" },
+    { label: "11 Colors", value: "11color" },
+    { label: "12 Colors", value: "12color" }
+  ];
+
+  const screenLocations = [
+    "Left Chest", "Center Chest", "Right Chest",
+    "Left Shoulder", "Right Shoulder", "Back"
+  ];
+
+  const screenPricing = {
+    "1color": [3.99, 2.62, 1.43, 1.16, 1.01, 0.94, 0.86, 0.82, 0.73, 0.63, 0.60],
+    "2color": [5.08, 3.46, 2.22, 1.67, 1.28, 1.11, 0.97, 0.88, 0.80, 0.70, 0.66],
+    "3color": [6.60, 4.32, 2.88, 2.22, 1.49, 1.35, 1.12, 0.94, 0.86, 0.78, 0.72],
+    "4color": [9.20, 5.39, 3.63, 2.75, 1.84, 1.65, 1.34, 1.04, 0.92, 0.85, 0.75],
+    "5color": [11.17, 6.36, 4.33, 3.32, 2.23, 1.95, 1.57, 1.21, 1.06, 0.92, 0.84],
+    "6color": [13.21, 7.33, 5.20, 3.88, 2.64, 2.29, 1.81, 1.38, 1.21, 1.00, 0.91],
+    "7color": [13.82, 8.52, 6.00, 4.49, 3.06, 2.60, 2.07, 1.59, 1.37, 1.11, 1.02],
+    "8color": [14.32, 8.83, 6.23, 4.70, 3.20, 2.72, 2.15, 1.63, 1.41, 1.13, 1.07],
+    "9color": [15.47, 10.04, 7.06, 5.31, 3.63, 3.10, 2.45, 1.88, 1.61, 1.30, 1.21],
+    "10color": [16.63, 11.28, 8.01, 6.00, 4.08, 3.49, 2.81, 2.15, 1.89, 1.52, 1.40],
+    "11color": [17.79, 12.63, 9.14, 6.78, 4.57, 3.94, 3.21, 2.47, 2.21, 1.79, 1.63],
+    "12color": [19.04, 14.15, 10.41, 7.66, 5.11, 4.46, 3.66, 2.84, 2.58, 2.09, 1.91]
+  };
+
+  function getScreenTier(quantity) {
+    if (quantity >= 2000) return 10;
+    if (quantity >= 1000) return 9;
+    if (quantity >= 500) return 8;
+    if (quantity >= 360) return 7;
+    if (quantity >= 215) return 6;
+    if (quantity >= 150) return 5;
+    if (quantity >= 100) return 4;
+    if (quantity >= 72) return 3;
+    if (quantity >= 50) return 2;
+    if (quantity >= 24) return 1;
+    return 0;
+  }
+
+  function calculateScreen() {
+    const quantity = parseInt(document.getElementById("screenQuantity").value);
+    const output = document.getElementById("screenOutput");
+    const isFleece = document.getElementById("fleeceCheckbox").checked;
+    const isNonStandard = document.getElementById("nonStandardCheckbox").checked;
+    if (!quantity || quantity <= 0) {
+      alert("Please enter a valid quantity.");
+      return;
+    }
+
+    const tier = getScreenTier(quantity);
+    let totalCost = 0;
+    let selectedLocations = [];
+    let breakdown = `--- Screen Printing Quote ---\nQuantity: ${quantity}\n\nPrint Locations:\n`;
+
+    for (let i = 1; i <= 6; i++) {
+      const select = document.getElementById(`screenLoc${i}`);
+      const colors = select.value;
+      
+      if (!colors) continue;
+
+      const unitPrice = screenPricing[colors][tier];
+      const locCost = unitPrice * quantity;
+      totalCost += locCost;
+
+      const label = screenSizes.find(p => p.value === colors)?.label || colors;
+      selectedLocations.push({
+        name: screenLocations[i - 1],
+        colors: label,
+        unitPrice: unitPrice,
+        cost: locCost
+      });
+    }
+
+    if (totalCost === 0) {
+      alert("Please select at least one print location.");
+      return;
+    }
+
+    // Add print location costs
+    selectedLocations.forEach(location => {
+      breakdown += `${location.name} (${location.colors})\n`;
+      breakdown += `  ${quantity} x $${location.unitPrice.toFixed(2)} = $${location.cost.toFixed(2)}\n\n`;
+    });
+
+    // Fleece upcharge
+    let fleeceSection = "";
+    if (isFleece) {
+      const fleeceUpcharge = quantity < 100 ? 0.60 : 0.45;
+      const fleeceTotal = fleeceUpcharge * selectedLocations.length * quantity;
+      totalCost += fleeceTotal;
+      fleeceSection = `Fleece Upcharge:\n  ${selectedLocations.length} locations x ${quantity} x $${fleeceUpcharge.toFixed(2)} = $${fleeceTotal.toFixed(2)}\n\n`;
+    }
+
+    // Non Standard Location upcharge
+    let nonStandardSection = "";
+    if (isNonStandard) {
+      const nonStandardUpcharge = quantity < 100 ? 0.50 : 0.35;
+      const nonStandardTotal = nonStandardUpcharge * selectedLocations.length * quantity;
+      totalCost += nonStandardTotal;
+      nonStandardSection = `Non Standard Location Upcharge:\n  ${selectedLocations.length} locations x ${quantity} x $${nonStandardUpcharge.toFixed(2)} = $${nonStandardTotal.toFixed(2)}\n\n`;
+    }
+
+    // Calculate setup fees (only if quantity is less than 100)
+    let setupFeeSection = "";
+    if (quantity < 100) {
+      const setupFee = 10.00;
+      
+      let totalColors = 0;
+      selectedLocations.forEach(location => {
+        // Extract color count from the label (e.g., "2 Colors" -> 2)
+        const colorMatch = location.colors.match(/(\d+)/);
+        const colorCount = colorMatch ? parseInt(colorMatch[1]) : 1;
+        totalColors += colorCount;
+      });
+      
+      const totalSetupFee = setupFee * totalColors;
+      totalCost += totalSetupFee;
+      setupFeeSection = `Setup Fee:\n  ${totalColors} x $${setupFee.toFixed(2)} = $${totalSetupFee.toFixed(2)}\n\n`;
+    }
+
+    // Apparel cost calculation
+    const apparelCost = parseFloat(document.getElementById("screenApparelCost").value) || 0;
+    let apparelSection = "";
+    let totalWithApparel = totalCost;
+    
+    if (apparelCost > 0) {
+      const apparelTotal = apparelCost * quantity;
+      totalWithApparel += apparelTotal;
+      apparelSection = `Apparel Cost:\n  ${quantity} x $${apparelCost.toFixed(2)} = $${apparelTotal.toFixed(2)}\n\n`;
+    }
+
+    const costPerItem = totalWithApparel / quantity;
+
+    // Mark-up calculation
+    let markupSection = "";
+    if (apparelCost > 0) {
+      let markupPerItem = 0;
+      
+      // If total mark-up would be less than $225.00, use $225.00 divided by quantity
+      if (apparelCost * quantity < 225.00) {
+        markupPerItem = 225.00 / quantity;
+      } else {
+        // If total would be over $225.00, mark-up is same as item cost
+        markupPerItem = apparelCost;
+      }
+      
+      // Minimum $3.50 per item
+      if (markupPerItem < 3.50) {
+        markupPerItem = 3.50;
+      }
+      
+      const finalMarkupTotal = markupPerItem * quantity;
+      
+      markupSection = `Mark-up:\n  ${quantity} x $${markupPerItem.toFixed(2)} = $${finalMarkupTotal.toFixed(2)}\n\n`;
+    }
+
+    breakdown += fleeceSection;
+    breakdown += nonStandardSection;
+    breakdown += setupFeeSection;
+    
+    // Calculate final totals for display
+    const decorationCostPerItem = totalCost / quantity;
+    const apparelCostPerItem = apparelCost;
+    
+    // Calculate mark-up per item using the same logic as above
+    let markupPerItem = 0;
+    if (apparelCost > 0) {
+      if (apparelCost * quantity < 225.00) {
+        markupPerItem = 225.00 / quantity;
+      } else {
+        markupPerItem = apparelCost;
+      }
+      if (markupPerItem < 3.50) {
+        markupPerItem = 3.50;
+      }
+    }
+    
+    const totalCostPerItem = decorationCostPerItem + apparelCostPerItem + markupPerItem;
+    
+    breakdown += `<strong style="color: red;">Decoration Cost Total: $${totalCost.toFixed(2)} ($${decorationCostPerItem.toFixed(2)} per item)</strong><br>`;
+    if (apparelCost > 0) {
+      breakdown += `<strong style="color: #00ff00;">Apparel Cost Total: $${(apparelCost * quantity).toFixed(2)} ($${apparelCostPerItem.toFixed(2)} per item)</strong><br>`;
+      breakdown += `<strong style="color: blue;">Mark-up Total: $${(markupPerItem * quantity).toFixed(2)} ($${markupPerItem.toFixed(2)} per item)</strong><br>`;
+      breakdown += `<strong>Total Cost: $${(totalCostPerItem * quantity).toFixed(2)} ($${totalCostPerItem.toFixed(2)} per item)</strong>`;
+    } else {
+      breakdown += `<strong>Total Cost: $${totalCost.toFixed(2)} ($${decorationCostPerItem.toFixed(2)} per item)</strong>`;
+    }
+    output.innerHTML = breakdown;
+    output.classList.remove("hidden");
+    output.classList.add("visible");
+  }
+
+  function resetScreen() {
+    document.getElementById("screenQuantity").value = "";
+    document.getElementById("screenApparelCost").value = "";
+    document.getElementById("fleeceCheckbox").checked = false;
+    document.getElementById("nonStandardCheckbox").checked = false;
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById(`screenLoc${i}`).selectedIndex = 0;
+      document.getElementById(`screenLoc${i}`).classList.remove('location-selected');
+      // Remove class from the corresponding label
+      const label = document.getElementById(`screenLoc${i}`).previousElementSibling;
+      if (label && label.tagName === 'LABEL') {
+        label.classList.remove('location-label-selected');
+      }
+    }
+    const output = document.getElementById("screenOutput");
+    output.textContent = "";
+    output.classList.add("hidden");
+  }
+
+  function copyScreen() {
+    const output = document.getElementById("screenOutput");
+    const text = output.innerText.trim();
+    if (!text) {
+      alert("Nothing to copy yet!");
+      return;
+    }
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard!"))
+      .catch(() => alert("Failed to copy. Try manually."));
+  }
+
+  // DTG Calculator
+  const dtgSizes = [
+    { label: "None", value: "" },
+    { label: "4\" x 4\" White", value: "4x4white" },
+    { label: "4\" x 4\" Dark", value: "4x4dark" },
+    { label: "10\" x 10\" White", value: "10x10white" },
+    { label: "10\" x 10\" Dark", value: "10x10dark" },
+    { label: "11\" x 15\" White", value: "11x15white" },
+    { label: "11\" x 15\" Dark", value: "11x15dark" }
+  ];
+
+  const dtgLocations = [
+    "Left Chest", "Center Chest", "Right Chest",
+    "Left Shoulder", "Right Shoulder", "Back"
+  ];
+
+  const dtgPricing = {
+    "4x4white": [4.25, 4.00, 3.80],
+    "4x4dark": [5.00, 4.75, 4.50],
+    "10x10white": [6.50, 6.00, 5.65],
+    "10x10dark": [7.75, 7.25, 7.00],
+    "11x15white": [7.00, 6.50, 6.25],
+    "11x15dark": [9.00, 8.25, 8.00]
+  };
+
+  function getDTGTier(quantity) {
+    if (quantity >= 50) return 2;
+    if (quantity >= 25) return 1;
+    return 0;
+  }
+
+  function calculateDTG() {
+    const quantity = parseInt(document.getElementById("dtgQuantity").value);
+    const output = document.getElementById("dtgOutput");
+    if (!quantity || quantity <= 0) {
+      alert("Please enter a valid quantity.");
+      return;
+    }
+
+    const tier = getDTGTier(quantity);
+    let totalCost = 0;
+    let breakdown = `--- DTG Printing Quote ---\nQuantity: ${quantity}\n\n`;
+
+    for (let i = 1; i <= 6; i++) {
+      const select = document.getElementById(`dtgLoc${i}`);
+      const size = select.value;
+      
+      if (!size) continue;
+
+      const unitPrice = dtgPricing[size][tier];
+      const locCost = unitPrice * quantity;
+      totalCost += locCost;
+
+      const label = dtgSizes.find(p => p.value === size)?.label || size;
+      breakdown += `${dtgLocations[i - 1]} (${label})\n`;
+      breakdown += `  Unit Price: $${unitPrice.toFixed(2)}\n`;
+      breakdown += `  Cost: $${locCost.toFixed(2)}\n\n`;
+    }
+
+    if (totalCost === 0) {
+      alert("Please select at least one print location.");
+      return;
+    }
+
+    // Apparel cost calculation
+    const apparelCost = parseFloat(document.getElementById("dtgApparelCost").value) || 0;
+    let apparelSection = "";
+    let totalWithApparel = totalCost;
+    
+    if (apparelCost > 0) {
+      const apparelTotal = apparelCost * quantity;
+      totalWithApparel += apparelTotal;
+      apparelSection = `Apparel Cost:\n  ${quantity} x $${apparelCost.toFixed(2)} = $${apparelTotal.toFixed(2)}\n\n`;
+    }
+
+    const costPerItem = totalWithApparel / quantity;
+
+    // Mark-up calculation
+    let markupSection = "";
+    if (apparelCost > 0) {
+      let markupPerItem = 0;
+      
+      // If total mark-up would be less than $225.00, use $225.00 divided by quantity
+      if (apparelCost * quantity < 225.00) {
+        markupPerItem = 225.00 / quantity;
+      } else {
+        // If total would be over $225.00, mark-up is same as item cost
+        markupPerItem = apparelCost;
+      }
+      
+      // Minimum $3.50 per item
+      if (markupPerItem < 3.50) {
+        markupPerItem = 3.50;
+      }
+      
+      const finalMarkupTotal = markupPerItem * quantity;
+      
+      markupSection = `Mark-up:\n  ${quantity} x $${markupPerItem.toFixed(2)} = $${finalMarkupTotal.toFixed(2)}\n\n`;
+    }
+
+    // Calculate final totals for display
+    const decorationCostPerItem = totalCost / quantity;
+    const apparelCostPerItem = apparelCost;
+    
+    // Calculate mark-up per item using the same logic as above
+    let markupPerItem = 0;
+    if (apparelCost > 0) {
+      if (apparelCost * quantity < 225.00) {
+        markupPerItem = 225.00 / quantity;
+      } else {
+        markupPerItem = apparelCost;
+      }
+      if (markupPerItem < 3.50) {
+        markupPerItem = 3.50;
+      }
+    }
+    
+    const totalCostPerItem = decorationCostPerItem + apparelCostPerItem + markupPerItem;
+    
+    breakdown += `<strong style="color: red;">Decoration Cost Total: $${totalCost.toFixed(2)} ($${decorationCostPerItem.toFixed(2)} per item)</strong><br>`;
+    if (apparelCost > 0) {
+      breakdown += `<strong style="color: #00ff00;">Apparel Cost Total: $${(apparelCost * quantity).toFixed(2)} ($${apparelCostPerItem.toFixed(2)} per item)</strong><br>`;
+      breakdown += `<strong style="color: blue;">Mark-up Total: $${(markupPerItem * quantity).toFixed(2)} ($${markupPerItem.toFixed(2)} per item)</strong><br>`;
+      breakdown += `<strong>Total Cost: $${(totalCostPerItem * quantity).toFixed(2)} ($${totalCostPerItem.toFixed(2)} per item)</strong>`;
+    } else {
+      breakdown += `<strong>Total Cost: $${totalCost.toFixed(2)} ($${decorationCostPerItem.toFixed(2)} per item)</strong>`;
+    }
+    output.innerHTML = breakdown;
+    output.classList.remove("hidden");
+    output.classList.add("visible");
+  }
+
+  function resetDTG() {
+    document.getElementById("dtgQuantity").value = "";
+    document.getElementById("dtgApparelCost").value = "";
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById(`dtgLoc${i}`).selectedIndex = 0;
+      document.getElementById(`dtgLoc${i}`).classList.remove('location-selected');
+      // Remove class from the corresponding label
+      const label = document.getElementById(`dtgLoc${i}`).previousElementSibling;
+      if (label && label.tagName === 'LABEL') {
+        label.classList.remove('location-label-selected');
+      }
+    }
+    const output = document.getElementById("dtgOutput");
+    output.textContent = "";
+    output.classList.add("hidden");
+  }
+
+  function copyDTG() {
+    const output = document.getElementById("dtgOutput");
+    const text = output.innerText.trim();
+    if (!text) {
+      alert("Nothing to copy yet!");
+      return;
+    }
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard!"))
+      .catch(() => alert("Failed to copy. Try manually."));
+  }
+
+  const embroideryLocations = [
+    "Left Chest", "Center Chest", "Right Chest",
+    "Left Shoulder", "Right Shoulder", "Back"
+  ];
+
+  const embStitchBrackets = [
+    { label: "None", min: null, max: null },
+    { label: "0–3,000", min: 0, max: 3000 },
+    { label: "3,001–4,000", min: 3001, max: 4000 },
+    { label: "4,001–5,000", min: 4001, max: 5000 },
+    { label: "5,001–6,000", min: 5001, max: 6000 },
+    { label: "6,001–7,000", min: 6001, max: 7000 },
+    { label: "7,001–8,000", min: 7001, max: 8000 },
+    { label: "9,001–10,000", min: 9001, max: 10000 },
+    { label: "10,001–11,000", min: 10001, max: 11000 },
+    { label: "11,001–12,000", min: 11001, max: 12000 },
+    { label: "12,001–13,000", min: 12001, max: 13000 },
+    { label: "13,001+", min: 13001, max: Infinity }
+  ];
+
+  const embQuantityBrackets = [6, 24, 42, 72, 144, 288, 600, 1000];
+
+  const embPricingMatrix = {
+    "0–3000": [4.93, 3.04, 2.86, 2.46, 2.23, 2.17, 2.15, 2.12],
+    "3001–4000": [5.19, 3.20, 3.03, 2.84, 2.73, 2.63, 2.55, 2.50],
+    "4001–5000": [5.85, 3.57, 3.37, 3.17, 3.00, 2.90, 2.83, 2.78],
+    "5001–6000": [6.26, 3.97, 3.76, 3.49, 3.40, 3.30, 3.19, 3.01],
+    "6001–7000": [6.75, 4.29, 4.01, 3.74, 3.68, 3.63, 3.60, 3.41],
+    "7001–8000": [7.15, 4.58, 4.33, 4.05, 4.01, 3.97, 3.92, 3.69],
+    "9001–10000": [7.93, 5.47, 4.99, 4.85, 4.80, 4.73, 4.70, 4.38],
+    "10001–11000": [8.63, 5.84, 5.37, 5.30, 5.21, 4.90, 5.11, 4.83],
+    "11001–12000": [8.94, 6.27, 5.75, 5.67, 5.61, 5.14, 5.39, 5.05],
+    "12001–13000": [9.62, 6.67, 6.18, 6.15, 6.02, 5.90, 5.83, 5.44]
+  };
+
+  const embAdditionalPricing = [0.40, 0.39, 0.38, 0.37, 0.36, 0.35, 0.34, 0.33];
+
+  function getEmbQtyIndex(qty) {
+    for (let i = embQuantityBrackets.length - 1; i >= 0; i--) {
+      if (qty >= embQuantityBrackets[i]) return i;
+    }
+    return 0;
+  }
+
+  function calculateEmbroidery() {
+    const quantity = parseInt(document.getElementById("embQuantity").value);
+    const output = document.getElementById("embroideryOutput");
+
+    if (!quantity || quantity <= 0) {
+      alert("Please enter a valid quantity.");
+      return;
+    }
+
+    const qtyIndex = getEmbQtyIndex(quantity);
+    let totalCost = 0;
+    let breakdown = `--- Embroidery Quote ---\nQuantity: ${quantity}\n\nStitch Locations:\n`;
+
+    for (let i = 1; i <= 6; i++) {
+      const select = document.getElementById(`embLoc${i}`);
+      const selectedIndex = parseInt(select.value);
+      const bracket = embStitchBrackets[selectedIndex];
+
+      if (!bracket || bracket.min === null) continue;
+
+      const locName = embroideryLocations[i - 1];
+      const maxStitches = Math.min(bracket.max, 13000);
+      const rangeKey = `${bracket.min}–${maxStitches}`;
+      let unitPrice = embPricingMatrix[rangeKey]?.[qtyIndex];
+      if (unitPrice === undefined) continue;
+
+      let extraCost = 0;
+      if (bracket.min > 13000) {
+        const extraStitches = bracket.max - 13000;
+        const extraUnits = Math.ceil(extraStitches / 1000);
+        extraCost = extraUnits * embAdditionalPricing[qtyIndex];
+      }
+
+      const finalUnitPrice = unitPrice + extraCost;
+      const locCost = finalUnitPrice * quantity;
+      totalCost += locCost;
+
+      breakdown += `${locName} (${bracket.label})\n`;
+      breakdown += `  ${quantity} x $${finalUnitPrice.toFixed(2)} = $${locCost.toFixed(2)}\n\n`;
+    }
+
+    if (totalCost === 0) {
+      alert("Please select at least one stitch range.");
+      return;
+    }
+
+    // Apparel cost calculation
+    const apparelCost = parseFloat(document.getElementById("embApparelCost").value) || 0;
+    let apparelSection = "";
+    let totalWithApparel = totalCost;
+    
+    if (apparelCost > 0) {
+      const apparelTotal = apparelCost * quantity;
+      totalWithApparel += apparelTotal;
+      apparelSection = `Apparel Cost:\n  ${quantity} x $${apparelCost.toFixed(2)} = $${apparelTotal.toFixed(2)}\n\n`;
+    }
+
+    const costPerItem = totalWithApparel / quantity;
+
+    // Mark-up calculation
+    let markupSection = "";
+    if (apparelCost > 0) {
+      let markupPerItem = 0;
+      
+      // If total mark-up would be less than $225.00, use $225.00 divided by quantity
+      if (apparelCost * quantity < 225.00) {
+        markupPerItem = 225.00 / quantity;
+      } else {
+        // If total would be over $225.00, mark-up is same as item cost
+        markupPerItem = apparelCost;
+      }
+      
+      // Minimum $3.50 per item
+      if (markupPerItem < 3.50) {
+        markupPerItem = 3.50;
+      }
+      
+      const finalMarkupTotal = markupPerItem * quantity;
+      
+      markupSection = `Mark-up:\n  ${quantity} x $${markupPerItem.toFixed(2)} = $${finalMarkupTotal.toFixed(2)}\n\n`;
+    }
+
+    // Calculate final totals for display
+    const decorationCostPerItem = totalCost / quantity;
+    const apparelCostPerItem = apparelCost;
+    
+    // Calculate mark-up per item using the same logic as above
+    let markupPerItem = 0;
+    if (apparelCost > 0) {
+      if (apparelCost * quantity < 225.00) {
+        markupPerItem = 225.00 / quantity;
+      } else {
+        markupPerItem = apparelCost;
+      }
+      if (markupPerItem < 3.50) {
+        markupPerItem = 3.50;
+      }
+    }
+    
+    const totalCostPerItem = decorationCostPerItem + apparelCostPerItem + markupPerItem;
+    
+    breakdown += `<strong style="color: red;">Decoration Cost Total: $${totalCost.toFixed(2)} ($${decorationCostPerItem.toFixed(2)} per item)</strong><br>`;
+    if (apparelCost > 0) {
+      breakdown += `<strong style="color: #00ff00;">Apparel Cost Total: $${(apparelCost * quantity).toFixed(2)} ($${apparelCostPerItem.toFixed(2)} per item)</strong><br>`;
+      breakdown += `<strong style="color: blue;">Mark-up Total: $${(markupPerItem * quantity).toFixed(2)} ($${markupPerItem.toFixed(2)} per item)</strong><br>`;
+      breakdown += `<strong>Total Cost: $${(totalCostPerItem * quantity).toFixed(2)} ($${totalCostPerItem.toFixed(2)} per item)</strong>`;
+    } else {
+      breakdown += `<strong>Total Cost: $${totalCost.toFixed(2)} ($${decorationCostPerItem.toFixed(2)} per item)</strong>`;
+    }
+    output.innerHTML = breakdown;
+    output.classList.remove("hidden");
+    output.classList.add("visible");
+  }
+
+  function resetEmbroidery() {
+    document.getElementById("embQuantity").value = "";
+    document.getElementById("embApparelCost").value = "";
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById(`embLoc${i}`).selectedIndex = 0;
+      document.getElementById(`embLoc${i}`).classList.remove('location-selected');
+      // Remove class from the corresponding label
+      const label = document.getElementById(`embLoc${i}`).previousElementSibling;
+      if (label && label.tagName === 'LABEL') {
+        label.classList.remove('location-label-selected');
+      }
+    }
+    const output = document.getElementById("embroideryOutput");
+    output.textContent = "";
+    output.classList.add("hidden");
+  }
+
+  function copyEmbroidery() {
+    const output = document.getElementById("embroideryOutput");
+    const text = output.innerText.trim();
+    if (!text) {
+      alert("Nothing to copy yet!");
+      return;
+    }
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard!"))
+      .catch(() => alert("Failed to copy. Try manually."));
+  }
+
+  function populateDropdowns() {
+    console.log("Populating dropdowns...");
+    for (let i = 1; i <= 6; i++) {
+      // DTF dropdowns
+      const dtfSelect = document.getElementById(`dtfLoc${i}`);
+      if (dtfSelect) {
+        // Clear existing options
+        dtfSelect.innerHTML = '';
+        dtfSizes.forEach(size => {
+          const option = document.createElement("option");
+          option.value = size.value;
+          option.textContent = size.label;
+          dtfSelect.appendChild(option);
+        });
+      }
+
+      // Embroidery dropdowns
+      const embSelect = document.getElementById(`embLoc${i}`);
+      if (embSelect) {
+        // Clear existing options
+        embSelect.innerHTML = '';
+        embStitchBrackets.forEach((bracket, index) => {
+          const option = document.createElement("option");
+          option.value = index;
+          option.textContent = bracket.label;
+          embSelect.appendChild(option);
+        });
+      }
+
+      // Screen Printing dropdowns
+      const screenSelect = document.getElementById(`screenLoc${i}`);
+      if (screenSelect) {
+        // Clear existing options
+        screenSelect.innerHTML = '';
+        screenSizes.forEach(size => {
+          const option = document.createElement("option");
+          option.value = size.value;
+          option.textContent = size.label;
+          screenSelect.appendChild(option);
+        });
+      }
+
+      // DTG dropdowns
+      const dtgSelect = document.getElementById(`dtgLoc${i}`);
+      if (dtgSelect) {
+        // Clear existing options
+        dtgSelect.innerHTML = '';
+        dtgSizes.forEach(size => {
+          const option = document.createElement("option");
+          option.value = size.value;
+          option.textContent = size.label;
+          dtgSelect.appendChild(option);
+        });
+      }
+    }
+    
+    // Initialize dropdown colors after populating
+    initializeDropdownColors();
+  }
+
+  function initializeDropdownColors() {
+    const calculatorTypes = ['screen', 'emb', 'dtf', 'dtg'];
+    
+    calculatorTypes.forEach(type => {
+      const allDropdownsInCalculator = Array.from({ length: 6 }, (_, i) => 
+        document.getElementById(`${type}Loc${i + 1}`)
+      );
+      
+      allDropdownsInCalculator.forEach(dd => {
+        if (dd && dd.value && dd.value !== '' && dd.value !== '0') {
+          dd.classList.add('location-selected');
+          // Add class to the corresponding label
+          const label = dd.previousElementSibling;
+          if (label && label.tagName === 'LABEL') {
+            label.classList.add('location-label-selected');
+          }
+        } else {
+          dd.classList.remove('location-selected');
+          // Remove class from the corresponding label
+          const label = dd.previousElementSibling;
+          if (label && label.tagName === 'LABEL') {
+            label.classList.remove('location-label-selected');
+          }
+        }
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("DOM Content Loaded");
+    populateDropdowns();
+    
+    // Set up event listeners
+    const dtfInputs = [document.getElementById("dtfQuantity"),
+      document.getElementById("dtfApparelCost"),
+      ...Array.from({ length: 6 }, (_, i) => document.getElementById(`dtfLoc${i + 1}`))];
+    dtfInputs.forEach(input => {
+      if (input) {
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            calculateDTF();
+          }
+        });
+      }
+    });
+
+    const embInputs = [document.getElementById("embQuantity"),
+      document.getElementById("embApparelCost"),
+      ...Array.from({ length: 6 }, (_, i) => document.getElementById(`embLoc${i + 1}`))];
+    embInputs.forEach(input => {
+      if (input) {
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            calculateEmbroidery();
+          }
+        });
+      }
+    });
+
+    // Screen Printing event listeners
+    const screenInputs = [document.getElementById("screenQuantity"),
+      document.getElementById("screenApparelCost"),
+      document.getElementById("fleeceCheckbox"),
+      document.getElementById("nonStandardCheckbox"),
+      ...Array.from({ length: 6 }, (_, i) => document.getElementById(`screenLoc${i + 1}`))];
+    screenInputs.forEach(input => {
+      if (input) {
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            calculateScreen();
+          }
+        });
+      }
+    });
+
+    // DTG event listeners
+    const dtgInputs = [document.getElementById("dtgQuantity"),
+      document.getElementById("dtgApparelCost"),
+      ...Array.from({ length: 6 }, (_, i) => document.getElementById(`dtgLoc${i + 1}`))];
+    dtgInputs.forEach(input => {
+      if (input) {
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            calculateDTG();
+          }
+        });
+      }
+    });
+
+    // Fulfillment Calculator mutual exclusivity logic
+    const fulfillNames = document.getElementById('fulfillNames');
+    const fulfillNumbers = document.getElementById('fulfillNumbers');
+    const fulfillLaser = document.getElementById('fulfillLaser');
+
+    function updateFulfillmentExclusivity() {
+      if (fulfillLaser.value) {
+        fulfillNames.value = '';
+        fulfillNumbers.value = '';
+        fulfillNames.disabled = true;
+        fulfillNumbers.disabled = true;
+      } else {
+        fulfillNames.disabled = false;
+        fulfillNumbers.disabled = false;
+      }
+      if (fulfillNames.value || fulfillNumbers.value) {
+        fulfillLaser.value = '';
+        fulfillLaser.disabled = true;
+      } else {
+        fulfillLaser.disabled = false;
+      }
+    }
+    fulfillLaser.addEventListener('change', updateFulfillmentExclusivity);
+    fulfillNames.addEventListener('change', updateFulfillmentExclusivity);
+    fulfillNumbers.addEventListener('change', updateFulfillmentExclusivity);
+
+    // Fulfillment Calculator: Enter key triggers calculation
+    const fulfillFormElements = [
+              'fulfillQuantity', 'fulfillFoldBag', 'fulfillOversized', 'fulfillCustomLabel',
+      'fulfillNames', 'fulfillNumbers', 'fulfillLaser', 'fulfillHangTag',
+      'fulfillClipTags', 'fulfillInsideTag', ...Array.from(document.querySelectorAll('.fulfillSize')).map(cb => cb.id)
+    ];
+    fulfillFormElements.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            calculateFulfillment();
+          }
+        });
+      }
+    });
+
+
+  });
+
+  // Also populate dropdowns when calculator is switched to
+  document.addEventListener("change", function(e) {
+    if (e.target.id === "calculatorSelect") {
+      setTimeout(populateDropdowns, 100); // Small delay to ensure DOM is ready
+    }
+  });
+
+  // Fulfillment Calculator logic
+  document.getElementById('fulfillFoldBag').addEventListener('change', function() {
+    document.getElementById('fulfillOversized').disabled = !this.checked;
+    if (!this.checked) document.getElementById('fulfillOversized').checked = false;
+    calculateFulfillment();
+  });
+  document.getElementById('fulfillOversized').addEventListener('change', function() {
+    calculateFulfillment();
+  });
+  document.getElementById('fulfillCustomLabel').addEventListener('change', function() {
+    calculateFulfillment();
+  });
+  document.getElementById('fulfillHangTag').addEventListener('change', function() {
+    calculateFulfillment();
+  });
+  document.getElementById('fulfillClipTags').addEventListener('change', function() {
+    calculateFulfillment();
+  });
+  document.getElementById('fulfillInsideTag').addEventListener('change', function() {
+    document.getElementById('fulfillSizesGroup').style.display = this.value === 'sp' ? '' : 'none';
+    calculateFulfillment();
+  });
+  
+  // Add event listeners for dropdowns and size checkboxes
+  document.getElementById('fulfillNames').addEventListener('change', function() {
+    calculateFulfillment();
+  });
+  document.getElementById('fulfillNumbers').addEventListener('change', function() {
+    calculateFulfillment();
+  });
+  document.getElementById('fulfillLaser').addEventListener('change', function() {
+    calculateFulfillment();
+  });
+  
+  // Add event listeners for size checkboxes
+  document.querySelectorAll('.fulfillSize').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      calculateFulfillment();
+    });
+  });
+
+  // Add event listeners for location dropdowns to handle color changes
+  const locationDropdowns = [
+    // Screen Printing dropdowns
+    ...Array.from({ length: 6 }, (_, i) => document.getElementById(`screenLoc${i + 1}`)),
+    // Embroidery dropdowns
+    ...Array.from({ length: 6 }, (_, i) => document.getElementById(`embLoc${i + 1}`)),
+    // DTF dropdowns
+    ...Array.from({ length: 6 }, (_, i) => document.getElementById(`dtfLoc${i + 1}`)),
+    // DTG dropdowns
+    ...Array.from({ length: 6 }, (_, i) => document.getElementById(`dtgLoc${i + 1}`))
+  ];
+
+  locationDropdowns.forEach(dropdown => {
+    if (dropdown) {
+      dropdown.addEventListener('change', function() {
+        // Remove selected class from all dropdowns and labels in the same calculator
+        const calculatorType = this.id.substring(0, this.id.indexOf('Loc'));
+        const allDropdownsInCalculator = Array.from({ length: 6 }, (_, i) => 
+          document.getElementById(`${calculatorType}Loc${i + 1}`)
+        );
+        
+        allDropdownsInCalculator.forEach(dd => {
+          if (dd) {
+            dd.classList.remove('location-selected');
+            // Remove class from the corresponding label
+            const label = dd.previousElementSibling;
+            if (label && label.tagName === 'LABEL') {
+              label.classList.remove('location-label-selected');
+            }
+          }
+        });
+        
+        // Add selected class to dropdowns and labels with selected options
+        allDropdownsInCalculator.forEach(dd => {
+          if (dd && dd.value && dd.value !== '' && dd.value !== '0') {
+            dd.classList.add('location-selected');
+            // Add class to the corresponding label
+            const label = dd.previousElementSibling;
+            if (label && label.tagName === 'LABEL') {
+              label.classList.add('location-label-selected');
+            }
+          }
+        });
+      });
+    }
+  });
+
+  function calculateFulfillment() {
+    const quantity = parseInt(document.getElementById('fulfillQuantity').value);
+    const foldBag = document.getElementById('fulfillFoldBag').checked;
+    const oversized = document.getElementById('fulfillOversized').checked;
+    const customLabel = document.getElementById('fulfillCustomLabel').checked;
+    const hangTag = document.getElementById('fulfillHangTag').checked;
+    const clipTags = document.getElementById('fulfillClipTags').checked;
+    const insideTag = document.getElementById('fulfillInsideTag').value;
+    const sizes = Array.from(document.querySelectorAll('.fulfillSize:checked')).map(cb => cb.value);
+    const output = document.getElementById('fulfillmentOutput');
+    let breakdown = `--- Fulfillment Quote ---\nQuantity: ${quantity}\n\n`;
+    let total = 0;
+    if (!quantity || quantity <= 0) {
+      alert('Please enter a valid quantity.');
+      return;
+    }
+    // Fold and Bag
+    if (foldBag) {
+      const cost = quantity * 0.50;
+      breakdown += `Fold and Bag: ${quantity} x $0.50 = $${cost.toFixed(2)}\n`;
+      total += cost;
+      if (oversized) {
+        const overCost = quantity * 0.10;
+        breakdown += `Oversized (Fleece): ${quantity} x $0.10 = $${overCost.toFixed(2)}\n`;
+        total += overCost;
+      }
+    }
+    // Custom Label
+    if (customLabel) {
+      const cost = quantity * 0.25;
+      breakdown += `Custom Label: ${quantity} x $0.25 = $${cost.toFixed(2)}\n`;
+      total += cost;
+    }
+    // Hanging Tag
+    if (hangTag) {
+      const cost = quantity * 0.50;
+      breakdown += `Hanging Tag + Application: ${quantity} x $0.50 = $${cost.toFixed(2)}\n`;
+      total += cost;
+    }
+    // Clipping Tags
+    if (clipTags) {
+      const cost = quantity * 0.05;
+      breakdown += `Clipping Tags: ${quantity} x $0.05 = $${cost.toFixed(2)}\n`;
+      total += cost;
+    }
+    // Inside Tag
+    if (insideTag === 'sp') {
+      if (sizes.length === 0) {
+        alert('For Screen Printing (1 Color), at least one size must be selected.');
+        return;
+      }
+      const spCost = quantity * (quantity < 100 ? 0.75 : 0.70);
+      breakdown += `Inside Tag (Screen Printing): ${quantity} x $${quantity < 100 ? '0.75' : '0.70'} = $${spCost.toFixed(2)}\n`;
+      total += spCost;
+      if (quantity < 100) {
+        const setup = sizes.length * 5.00;
+        breakdown += `Screen Printing Setup: ${sizes.length} sizes x $5.00 = $${setup.toFixed(2)}\n`;
+        total += setup;
+      }
+    } else if (insideTag === 'dtf') {
+      const dtfCost = quantity * (quantity < 100 ? 1.50 : 1.40);
+      breakdown += `Inside Tag (DTF): ${quantity} x $${quantity < 100 ? '1.50' : '1.40'} = $${dtfCost.toFixed(2)}\n`;
+      total += dtfCost;
+    }
+    // Names
+    const namesValue = document.getElementById('fulfillNames').value;
+    if (namesValue) {
+      let price = 0;
+      let label = '';
+      if (namesValue === 'trsf1') { price = 4.00; label = '(TRSF) Up to 1\" tall'; }
+      if (namesValue === 'trsf2') { price = 5.00; label = '(TRSF) Above 1\" tall'; }
+      if (namesValue === 'emb1') { price = 5.50; label = '(EMB) Up to 1\" tall'; }
+      if (namesValue === 'emb2') { price = 7.50; label = '(EMB) Over 1\" tall'; }
+      const cost = quantity * price;
+      breakdown += `Names ${label}: ${quantity} x $${price.toFixed(2)} = $${cost.toFixed(2)}\n`;
+      total += cost;
+    }
+    // Numbers
+    const numbersValue = document.getElementById('fulfillNumbers').value;
+    if (numbersValue) {
+      let price = 0;
+      let label = '';
+      if (numbersValue === 'trsf3') { price = 3.00; label = '(TRSF) 2\" to 8\" tall'; }
+      if (numbersValue === 'trsf4') { price = 4.00; label = '(TRSF) 10\" to 12\" tall'; }
+      if (numbersValue === 'emb3') { price = 5.50; label = '(EMB) Up to 1\" tall'; }
+      if (numbersValue === 'emb4') { price = 7.50; label = '(EMB) Over 1\" tall'; }
+      const cost = quantity * price;
+      breakdown += `Numbers ${label}: ${quantity} x $${price.toFixed(2)} = $${cost.toFixed(2)}\n`;
+      total += cost;
+    }
+    // Laser Engraving
+    const laserValue = document.getElementById('fulfillLaser').value;
+    if (laserValue) {
+      // Laser Engraving matrix
+      const laserMatrix = {
+        '4x4': [2.95, 2.61, 2.56, 2.25, 1.65, 1.45],
+        '8x8': [4.20, 3.70, 3.10, 2.75, 2.15, 1.95]
+      };
+      const laserLabels = { '4x4': '4\" x 4\"', '8x8': '8\" x 8\"' };
+      let tier = 0;
+      if (quantity >= 500) tier = 5;
+      else if (quantity >= 250) tier = 4;
+      else if (quantity >= 100) tier = 3;
+      else if (quantity >= 50) tier = 2;
+      else if (quantity >= 25) tier = 1;
+      else tier = 0;
+      const unitPrice = laserMatrix[laserValue][tier];
+      let cost = unitPrice * quantity;
+      let minApplied = false;
+      if (cost < 20) { cost = 20.00; minApplied = true; }
+      breakdown += `Laser Engraving ${laserLabels[laserValue]}: ${quantity} x $${unitPrice.toFixed(2)} = $${(unitPrice * quantity).toFixed(2)}\n`;
+      if (minApplied) breakdown += `Minimum Order Applied: $20.00\n`;
+      total += cost;
+    }
+    const costPerItem = total / quantity;
+
+    breakdown += `\n<strong>Total Cost: $${total.toFixed(2)}</strong>`;
+    breakdown += `\n<strong>Cost Per Item: $${costPerItem.toFixed(2)}</strong>`;
+    output.innerHTML = breakdown;
+    output.classList.remove('hidden');
+    output.classList.add('visible');
+  }
+
+  function resetFulfillment() {
+    document.getElementById('fulfillQuantity').value = '';
+    document.getElementById('fulfillFoldBag').checked = false;
+    document.getElementById('fulfillOversized').checked = false;
+    document.getElementById('fulfillOversized').disabled = true;
+    document.getElementById('fulfillCustomLabel').checked = false;
+    document.getElementById('fulfillHangTag').checked = false;
+    document.getElementById('fulfillClipTags').checked = false;
+    document.getElementById('fulfillInsideTag').selectedIndex = 0;
+    document.getElementById('fulfillNames').selectedIndex = 0;
+    document.getElementById('fulfillNumbers').selectedIndex = 0;
+    document.getElementById('fulfillLaser').selectedIndex = 0;
+    document.getElementById('fulfillLaser').disabled = false;
+    document.getElementById('fulfillNames').disabled = false;
+    document.getElementById('fulfillNumbers').disabled = false;
+    document.getElementById('fulfillSizesGroup').style.display = 'none';
+    document.querySelectorAll('.fulfillSize').forEach(cb => cb.checked = false);
+    const output = document.getElementById('fulfillmentOutput');
+    output.textContent = '';
+    output.classList.add('hidden');
+  }
+
+  function copyFulfillment() {
+    const output = document.getElementById('fulfillmentOutput');
+    const text = output.innerText.trim();
+    if (!text) {
+      alert('Nothing to copy yet!');
+      return;
+    }
+    navigator.clipboard.writeText(text)
+      .then(() => alert('Copied to clipboard!'))
+      .catch(() => alert('Failed to copy. Try manually.'));
+  }
+</script>
+</body>
+</html>
